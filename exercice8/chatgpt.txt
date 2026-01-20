@@ -1,0 +1,44 @@
+QUESTION :
+
+Peux tu générer un script shell qui permet d'afficher la liste de ses paramètres par ordre alphabétique stp  ?
+
+
+REPONSE :
+
+Voici un **script shell (bash)** simple qui affiche **la liste de ses paramètres triés par ordre alphabétique** 🙂
+
+```bash
+#!/usr/bin/env bash
+
+# Vérifie s'il y a des paramètres
+if [ "$#" -eq 0 ]; then
+  echo "Aucun paramètre fourni."
+  exit 0
+fi
+
+# Affiche les paramètres triés par ordre alphabétique
+printf "%s\n" "$@" | sort
+```
+
+### Utilisation
+
+```bash
+chmod +x script.sh
+./script.sh pomme banane abricot
+```
+
+### Sortie
+
+```text
+abricot
+banane
+pomme
+```
+
+👉 Ce script :
+
+* prend tous les paramètres (`"$@"`)
+* les affiche un par ligne
+* les trie avec `sort`
+
+Si tu veux une variante (tri insensible à la casse, affichage sur une seule ligne, ou compatibilité POSIX stricte), dis-le-moi 👍
