@@ -1,0 +1,61 @@
+QUESTION :
+
+Maintenant peux tu générer une fonction PHP qui prend un nombre inconnu et illimité d'arguments et les affiche stp  
+
+
+REPONSE :
+
+Bien sûr 🙂
+Voici une **fonction PHP** qui accepte **un nombre inconnu et illimité d’arguments** et les affiche.
+
+```php
+<?php
+
+function afficherArguments(...$arguments)
+{
+    if (empty($arguments)) {
+        echo "Aucun argument fourni.\n";
+        return;
+    }
+
+    foreach ($arguments as $index => $valeur) {
+        echo "Argument " . ($index + 1) . " : ";
+        var_export($valeur);
+        echo PHP_EOL;
+    }
+}
+```
+
+### Exemple d’utilisation
+
+```php
+afficherArguments("pomme", 42, true, ["a", "b", "c"]);
+```
+
+### Sortie possible
+
+```text
+Argument 1 : 'pomme'
+Argument 2 : 42
+Argument 3 : true
+Argument 4 : 
+array (
+  0 => 'a',
+  1 => 'b',
+  2 => 'c',
+)
+```
+
+### Points clés
+
+* `...$arguments` permet de capter un nombre illimité de paramètres
+* `var_export()` affiche correctement tous les types (string, int, bool, array, etc.)
+* Compatible PHP **5.6+**
+
+Si tu veux :
+
+* un affichage HTML
+* un tri des arguments
+* ou une version avec typage strict
+
+je peux te le faire 👍
