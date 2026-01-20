@@ -1,0 +1,163 @@
+QUESTION :
+
+Peux tu trouver une erreur qui est assez complexe sur ce code stp ? : export class ContentForm {
+    #searchInput;
+    #contentInput;
+    #form;
+
+    constructor() {
+        this.#form = document.querySelector("#content-form");
+        this.#searchInput = document.querySelector("#seo-search");
+        this.#contentInput = document.querySelector("#content");
+
+        this.#form.addEventListener("submit", (event) => this.#submit(event));
+    }
+
+    async #request(terms){
+        const response = await ai.models.generateContent({
+            model: "gemini-2.5-flash",
+            contents: terms,
+        });
+
+        let modal = document.querySelector("div.modal");
+        modal.style.display = "none";
+
+        let section = document.querySelector("#gemini-answer");
+        section.scrollIntoView();
+
+        section.innerHTML = marked.parse(response.text);
+    }
+
+    #submit(event)
+    {
+        event.preventDefault();
+        let modal = document.querySelector("div.modal");
+        modal.style.display = "grid";
+        let search = this.#searchInput.value;
+        let content = this.#contentInput.value;
+
+        let terms = `Bonjour, pourrais-tu me calculer un score SEO pour un contenu que je vais
+        t'envoyer en format Markdown. Les termes de recherches pour lesquels calculer sont les suivants : ${search}.
+        Le contenu est le suivant : ${content}. J'aurais besoin d'une réponse synthétique au format Markdown avec un score sur 20. Merci !`;
+
+        this.#request(terms);
+    }
+}
+
+Soft-wrap
+
+
+
+
+REPONSE :
+
+Oui 👍
+Il y a **une erreur de conception assez subtile et “complexe”** dans ce code. Elle ne saute pas aux yeux, mais elle peut provoquer un **comportement bloquant en production**.
+
+---
+
+## ❌ Erreur principale (complexe) : **absence de gestion d’erreur asynchrone**
+
+### Où est le problème ?
+
+```js
+async #request(terms){
+    const response = await ai.models.generateContent({
+        model: "gemini-2.5-flash",
+        contents: terms,
+    });
+
+    let modal = document.querySelector("div.modal");
+    modal.style.display = "none";
+    // ...
+}
+```
+
+### Pourquoi c’est une vraie erreur de conception
+
+* `generateContent()` est **asynchrone**
+* Il peut échouer pour de nombreuses raisons :
+
+  * erreur réseau
+  * quota dépassé
+  * clé API invalide
+  * timeout
+  * réponse invalide
+
+👉 **Si une erreur est levée avant la ligne qui ferme le modal**, alors :
+
+* `modal.style.display = "none"` **n’est jamais exécuté**
+* L’interface reste **bloquée en état de chargement**
+* L’utilisateur n’a aucun retour
+
+C’est un **bug UX critique**, difficile à détecter tant que tout fonctionne bien.
+
+---
+
+## 🧠 Pourquoi c’est “complexe”
+
+* Le code est **syntaxiquement correct**
+* Il fonctionne **en conditions idéales**
+* Le bug n’apparaît :
+
+  * qu’en cas d’échec réseau
+  * ou de problème côté API
+* Il se manifeste comme un “freeze” UI, pas comme une erreur visible
+
+➡️ Typiquement le genre de bug qu’on découvre **en production**.
+
+---
+
+## ⚠️ Autre problème subtil lié
+
+```js
+this.#request(terms);
+```
+
+* L’appel n’est **ni `await` ni géré**
+* Le `submit()` ne sait pas si la requête :
+
+  * a réussi
+  * a échoué
+  * est encore en cours
+
+➡️ Aucun contrôle du cycle de vie de l’action utilisateur.
+
+---
+
+## ⚠️ Autre erreur de conception (bonus)
+
+```js
+section.innerHTML = marked.parse(response.text);
+```
+
+* Injection directe de HTML généré par une IA
+* **Risque XSS élevé**
+* `marked` **n’est pas un sanitizer**
+
+➡️ C’est une faille de sécurité silencieuse.
+
+---
+
+## 🧾 Résumé
+
+### ❌ Erreur de conception complexe principale
+
+> **Aucune gestion des erreurs asynchrones**, ce qui peut bloquer l’interface utilisateur définitivement.
+
+### ❌ Conséquences
+
+* UI figée
+* Aucun feedback utilisateur
+* Bug difficile à reproduire
+* Mauvaise résilience réseau
+
+---
+
+Si tu veux, je peux :
+
+* te montrer **comment repérer ce genre de bug en revue de code**
+* t’expliquer pourquoi c’est une **violation du principe de robustesse**
+* te proposer une **correction minimale** (sans refactor complet)
+
+Dis-moi 😊
