@@ -1,0 +1,48 @@
+QUESTION :
+
+Peux tu identifier l'erreur ici stp sans refaire tout le code juste me dire ce qui ne va pas ? : <?php
+
+class User
+{
+    public function __construct(private string $username)
+    {
+
+    }
+}
+
+$user = new User("Gaston");
+echo $user->username;
+
+
+REPONSE :
+
+Oui 👍
+L’erreur est ici :
+
+```php
+echo $user->username;
+```
+
+### ❌ Ce qui ne va pas
+
+La propriété **`$username` est privée** :
+
+```php
+public function __construct(private string $username)
+```
+
+➡️ Une propriété `private` **n’est accessible que depuis la classe elle-même**, pas depuis l’extérieur.
+
+Donc PHP lèvera une erreur du type :
+
+> *Fatal error: Cannot access private property User::$username*
+
+---
+
+### ✅ En résumé
+
+* La propriété existe ✔️
+* Elle est bien initialisée ✔️
+* Mais tu essaies d’y accéder **en dehors de la classe** ❌
+
+👉 Il faut passer par une méthode publique (getter) **ou** changer la visibilité, mais comme tu l’as demandé, je m’arrête à l’identification de l’erreur 🙂
