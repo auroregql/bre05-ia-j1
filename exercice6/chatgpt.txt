@@ -1,0 +1,91 @@
+QUESTION :
+
+Peux tu m'aider a trouver l'erreur de conception de ce code stp ? : #include <stdio.h>
+
+int main(int argc, char **argv, char **envp)
+{
+	if(argc < 5);
+	{
+		printf("Not enough arguments.\n");
+	}
+
+	return 0;
+}
+
+
+REPONSE :
+
+Oui 👍
+Ici, ce n’est **pas seulement une erreur de syntaxe**, mais surtout une **erreur de conception / logique de contrôle**.
+
+---
+
+## ❌ Erreur principale
+
+```c
+if(argc < 5);
+```
+
+### Pourquoi c’est une erreur
+
+Le **point-virgule `;` termine l’instruction `if`**.
+
+👉 Résultat :
+
+* Le `if` ne contrôle **rien**
+* Le bloc suivant est exécuté **dans tous les cas**
+
+```c
+if (condition);   // instruction vide
+{
+    printf("Not enough arguments.\n"); // toujours exécuté
+}
+```
+
+---
+
+## 🧠 Erreur de conception sous-jacente
+
+### ❌ Condition inutile / trompeuse
+
+Le code **donne l’illusion** qu’il vérifie le nombre d’arguments, alors qu’en réalité :
+
+* Le programme affiche toujours le message d’erreur
+* La condition ne sert à rien
+
+➡️ C’est une **erreur de conception du flux logique**, pas juste une faute de frappe.
+
+---
+
+## ⚠️ Autre problème conceptuel (secondaire)
+
+```c
+int main(int argc, char **argv, char **envp)
+```
+
+* `envp` n’est **jamais utilisé**
+* Introduit une dépendance inutile
+* Rend la signature plus complexe sans bénéfice
+
+---
+
+## ✅ Résumé
+
+❌ **Erreur de conception principale**
+
+> Le `if` est neutralisé par un `;`, rendant la condition inefficace.
+
+❌ **Conséquence**
+
+* Le programme se comporte incorrectement
+* Le code est trompeur pour le lecteur
+
+👉 Ce genre d’erreur est **très fréquent** et **difficile à voir**, mais critique en C.
+
+Si tu veux, je peux aussi te montrer :
+
+* comment les compilateurs détectent ça (`-Wall -Wextra`)
+* pourquoi ce bug est dangereux en production
+* des exemples similaires encore plus piégeux
+
+Dis-moi 😊
