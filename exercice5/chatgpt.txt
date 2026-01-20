@@ -1,0 +1,123 @@
+QUESTION :
+
+Peux tu identifier l'erreur de conception sur ce code stp ? : class Controller extends AbstractController
+{
+	// ...
+
+	public function home() : void
+	{
+		$query = $this->db->prepare('SELECT * FROM users');
+		$parameters = [
+
+		];
+		$query->execute($parameters);
+		$result = $query->fetchAll(PDO::FETCH_ASSOC);
+	}
+
+	// ...
+}
+
+
+REPONSE : 
+
+Oui 👍
+Ici, il n’y a **pas d’erreur de syntaxe**, mais bien une **erreur de conception (architecture)**.
+
+---
+
+## ❌ Erreur de conception principale
+
+👉 **Le contrôleur accède directement à la base de données.**
+
+```php
+$query = $this->db->prepare('SELECT * FROM users');
+```
+
+### Pourquoi c’est un problème
+
+Dans une architecture MVC (ou proche) :
+
+* **Controller** : orchestre la requête (HTTP → réponse)
+* **Model / Repository / Service** : contient la logique d’accès aux données
+* **View** : affichage
+
+Ici, le contrôleur :
+
+* prépare la requête SQL
+* exécute la requête
+* récupère les résultats
+
+➡️ Il mélange **logique de contrôle** et **logique métier / data**
+
+---
+
+## 🧠 En termes de principes de conception
+
+### 🔴 Violation du principe de responsabilité unique (SRP)
+
+Le contrôleur a **deux responsabilités** :
+
+1. Gérer l’action `home()`
+2. Savoir *comment* récupérer les utilisateurs en base
+
+---
+
+### 🔴 Couplage fort à PDO / SQL
+
+```php
+PDO::FETCH_ASSOC
+```
+
+* Le contrôleur dépend directement de PDO
+* Impossible de changer :
+
+  * le SGBD
+  * le moteur de stockage
+  * la source des données
+    sans modifier le contrôleur
+
+---
+
+## ⚠️ Autre problème secondaire
+
+```php
+$parameters = [];
+```
+
+* Requête préparée **sans paramètres**
+* Utilisation inutile de `prepare()` au lieu de `query()`
+* Indice d’un code copié sans intention claire
+
+---
+
+## ✅ Ce qui aurait dû être fait (conceptuellement)
+
+* Le contrôleur **appelle un service / repository**
+* Le contrôleur **ne connaît pas le SQL**
+
+Exemples de responsabilités correctes :
+
+* `UserRepository::findAll()`
+* `UserService::getAllUsers()`
+
+---
+
+## 🧾 Résumé
+
+❌ **Erreur de conception** :
+
+> Le contrôleur accède directement à la base de données et contient du SQL.
+
+✔️ **Conséquences** :
+
+* Code moins testable
+* Code moins maintenable
+* Architecture fragile
+
+👉 Si tu veux, je peux aussi :
+
+* identifier **toutes** les violations SOLID
+* te montrer comment repérer ce genre d’erreur rapidement en entretien
+* analyser le rôle d’`AbstractController`
+
+Dis-moi 😊
